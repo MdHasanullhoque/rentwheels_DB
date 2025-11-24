@@ -123,11 +123,30 @@ app.get('/Featured-Cars', async (req, res) => {
         const result = await FeaturedCollection.find().toArray();
         res.send(result);
 
-        
+
     } catch (err) {
         res.status(500).send({ error: 'Something went wrong' });
     }
 });
+
+// single car with id 
+app.get('/Featured-Cars/:id', async (req, res) => {
+
+    const id = req.params.id;
+
+    const { ObjectId } = require('mongodb');
+
+
+    const car = await FeaturedCollection.findOne({ _id: new ObjectId(id) });
+
+    // if (!car) {
+    //     return res.status(404).send({ message: "Car not found" });
+    // }
+
+    res.send(car);
+});
+
+
 
 app.get('/', (req, res) => {
     res.send('Hello World!');
