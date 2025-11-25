@@ -145,6 +145,29 @@ app.post("/add-car", async (req, res) => {
 
 
 
+// =====================
+// Get cars added by logged-in provider
+// =====================
+app.get("/my-listings", async (req, res) => {
+    try {
+        const email = req.query.email;
+
+        if (!email) {
+            return res.status(400).send({ success: false, message: "Email is required" });
+        }
+
+        const cars = await FeaturedCollection.find({ providerEmail: email }).toArray();
+        res.send({ success: true, data: cars });
+
+    } catch (err) {
+        console.error("My Listings Error:", err);
+        res.status(500).send({ success: false, message: "Failed to load listings" });
+    }
+});
+
+
+
+
 
 
 //  Home route
