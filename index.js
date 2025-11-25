@@ -213,8 +213,43 @@ app.put("/update-car/:id", async (req, res) => {
 });
 
 
+// Get bookings for logged-in user
+app.get("/my-bookings/:userEmail", async (req, res) => {
+    try {
+        const userEmail = req.params.userEmail;
+        const bookings = await bookingsCollection.find({ userEmail }).toArray();
+        res.send(bookings);
+    } catch (err) {
+        console.error("Get my bookings error:", err);
+        res.status(500).send({ success: false, message: "Failed to fetch bookings" });
+    }
+});
 
 
+// Cancel a booking
+app.delete("/cancel-booking/:id", async (req, res) => {
+    try {
+        const bookingId = req.params.id;
+
+        //  Find the booking first
+        const booking = await bookingsCollection.findOne({ _id: new ObjectId(bookingId) });
+        if (!booking) return res.status(404).send({ success: false, message: "Booking not found" });
+
+        //  Delete booking
+        await bookingsCollection.deleteOne({ _id: new ObjectId(bookingId) });
+
+        //  Update car status back to Available
+        await FeaturedCollection.updateOne(
+            { _id: new ObjectId(booking.carId) },
+            { $set: { status: "Available" } }
+        );
+
+        res.send({ success: true, message: "Booking canceled successfully" });
+    } catch (err) {
+        console.error("Cancel booking error:", err);
+        res.status(500).send({ success: false, message: "Failed to cancel booking" });
+    }
+});
 
 
 
