@@ -166,6 +166,58 @@ app.get("/my-listings", async (req, res) => {
 });
 
 
+//delete 
+
+// DELETE car
+app.delete("/delete-car/:id", async (req, res) => {
+    try {
+        const id = req.params.id;
+        if (!id) return res.status(400).send({ success: false, message: "Car ID missing" });
+
+        // ObjectId convert
+        const result = await FeaturedCollection.deleteOne({ _id: new ObjectId(id) });
+
+        if (result.deletedCount === 0) {
+            return res.status(404).send({ success: false, message: "Car not found" });
+        }
+
+        res.send({ success: true, message: "Car deleted successfully" });
+    } catch (error) {
+        console.error("Delete Car Error:", error); // 
+        res.status(500).send({ success: false, message: "Failed to delete" });
+    }
+});
+
+
+
+// Update Car
+app.put("/update-car/:id", async (req, res) => {
+    try {
+        const id = req.params.id;
+        const updatedCar = req.body;
+
+        const result = await FeaturedCollection.updateOne(
+            { _id: new ObjectId(id) },
+            { $set: updatedCar }
+        );
+
+        if (result.modifiedCount > 0) {
+            res.send({ success: true, message: "Car updated successfully" });
+        } else {
+            res.send({ success: false, message: "No changes made" });
+        }
+    } catch (err) {
+        console.error("Update car error:", err);
+        res.status(500).send({ success: false, message: "Update failed" });
+    }
+});
+
+
+
+
+
+
+
 
 
 
