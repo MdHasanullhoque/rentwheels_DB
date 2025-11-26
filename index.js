@@ -253,7 +253,26 @@ app.delete("/cancel-booking/:id", async (req, res) => {
 
 
 
+//search
+// Search cars by title
+app.get('/search-cars', async (req, res) => {
+    try {
+        const title = req.query.title; // URL query: ?title=toyota
 
+        if (!title) {
+            return res.status(400).send({ success: false, message: "Title is required" });
+        }
+
+        // Case-insensitive search using regex
+        const query = { title: { $regex: title, $options: "i" } };
+        const cars = await FeaturedCollection.find(query).toArray();
+
+        res.send(cars);
+    } catch (err) {
+        console.error("Search cars error:", err);
+        res.status(500).send({ success: false, message: "Search failed" });
+    }
+});
 
 
 
