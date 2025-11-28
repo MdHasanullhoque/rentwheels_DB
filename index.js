@@ -85,6 +85,25 @@ app.post("/book-car", async (req, res) => {
     }
 });
 
+// Search cars by title
+app.get('/search-cars', async (req, res) => {
+    const { client, FeaturedCollection } = await getCollections();
+    try {
+        const title = req.query.title || '';
+        const cars = await FeaturedCollection.find({
+            title: { $regex: title, $options: 'i' } // case-insensitive search
+        }).toArray();
+
+        res.send(cars);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send({ success: false, message: 'Failed to search cars' });
+    } finally {
+        await client.close();
+    }
+});
+
+
 // Get bookings by user email
 app.get('/my-bookings/:email', async (req, res) => {
     const { client, bookingsCollection } = await getCollections();
@@ -124,6 +143,30 @@ app.delete('/cancel-booking/:id', async (req, res) => {
     }
 });
 
+// Update Car
+app.put('/update-car/:id', async (req, res) => {
+    const { client, FeaturedCollection } = await getCollections();
+    try {
+        const carId = req.params.id;
+        const updatedData = req.body;
+
+        const result = await FeaturedCollection.updateOne(
+            { _id: new ObjectId(carId) },
+            { $set: updatedData }
+        );
+
+        if (result.modifiedCount === 1) {
+            res.send({ success: true, message: "Car updated successfully" });
+        } else {
+            res.status(404).send({ success: false, message: "Car not found or no change made" });
+        }
+    } catch (err) {
+        console.error(err);
+        res.status(500).send({ success: false, message: "Update failed" });
+    } finally {
+        await client.close();
+    }
+});
 
 
 // My Listings: get cars added by current user
