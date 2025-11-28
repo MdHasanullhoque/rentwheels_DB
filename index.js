@@ -278,7 +278,7 @@ app.get('/search-cars', async (req, res) => {
 
 //  Home route
 app.get('/', (req, res) => {
-    res.send('Hello World!');
+    res.send('Hello Server World!');
 });
 
 // ===================
